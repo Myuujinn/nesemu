@@ -24,3 +24,8 @@ func (c *Cpu) Cld(_ []byte) (incrPC bool, result byte, cycles byte, debug string
 	c.SetFlag(FlagDecimal, false)
 	return true, 0, 2, "CLD"
 }
+
+func (c *Cpu) Clv(_ []byte) (incrPC bool, result byte, cycles byte, debug string) {
+	c.SetFlag(FlagOverflow, false)
+	return true, 0, 2, "CLV"
+}
