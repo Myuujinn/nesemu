@@ -15,38 +15,30 @@ func (c *Cpu) IsFlagSet(flag uint8) bool {
 	return c.registers.status&flag == flag
 }
 
-func (c *Cpu) SetFlag(flag uint8) {
-	c.registers.status |= flag
-}
-
-func (c *Cpu) ClearFlag(flag uint8) {
-	c.registers.status &= ^flag
-}
-
-func Zero(instr func(*Cpu, []byte) (incrPC bool, result byte, cycles byte)) func(*Cpu, []byte) (incrPC bool, result byte, cycles byte) {
-	return func(cpu *Cpu, operands []byte) (incrPC bool, result byte, cycles byte) {
-		incrPC, result, cycles = instr(cpu, operands)
-
-		if result == 0 {
-			cpu.SetFlag(FlagZero)
-		} else {
-			cpu.ClearFlag(FlagZero)
-		}
-
-		return incrPC, result, cycles
+func (c *Cpu) SetFlag(flag uint8, set bool) {
+	if set {
+		c.registers.status |= flag
+	} else {
+		c.registers.status &= ^flag
 	}
 }
 
-func Negative(instr func(*Cpu, []byte) (incrPC bool, result byte, cycles byte)) func(*Cpu, []byte) (incrPC bool, result byte, cycles byte) {
-	return func(cpu *Cpu, operands []byte) (incrPC bool, result byte, cycles byte) {
-		incrPC, result, cycles = instr(cpu, operands)
+func Zero(instr func(*Cpu, []byte) (incrPC bool, result byte, cycles byte, debug string)) func(*Cpu, []byte) (incrPC bool, result byte, cycles byte, debug string) {
+	return func(cpu *Cpu, operands []byte) (incrPC bool, result byte, cycles byte, debug string) {
+		incrPC, result, cycles, debug = instr(cpu, operands)
 
-		if result&0b10000000 == 0b10000000 {
-			cpu.SetFlag(FlagNegative)
-		} else {
-			cpu.ClearFlag(FlagNegative)
-		}
+		cpu.SetFlag(FlagZero, result == 0)
 
-		return incrPC, result, cycles
+		return incrPC, result, cycles, debug
+	}
+}
+
+func Negative(instr func(*Cpu, []byte) (incrPC bool, result byte, cycles byte, debug string)) func(*Cpu, []byte) (incrPC bool, result byte, cycles byte, debug string) {
+	return func(cpu *Cpu, operands []byte) (incrPC bool, result byte, cycles byte, debug string) {
+		incrPC, result, cycles, debug = instr(cpu, operands)
+
+		cpu.SetFlag(FlagNegative, result&0b10000000 == 0b10000000)
+
+		return incrPC, result, cycles, debug
 	}
 }

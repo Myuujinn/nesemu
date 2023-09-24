@@ -19,8 +19,8 @@ type Cpu struct {
 	Memory    Memory
 }
 
-func (c *Cpu) String() string {
-	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02X SP:%02X PPU:%3d,%3d CYC:%d", c.registers.acc, c.registers.x, c.registers.y, c.registers.status, c.registers.sp, 0, 0, c.cycle)
+func (r *Registers) String() string {
+	return fmt.Sprintf("A:%02X X:%02X Y:%02X P:%02X SP:%02X PPU:%3d,%3d", r.acc, r.x, r.y, r.status, r.sp, 0, 0)
 }
 
 func (c *Cpu) Init() {
@@ -46,38 +46,20 @@ func (c *Cpu) PopStack() uint8 {
 }
 
 func (c *Cpu) Start() {
-	fmt.Printf("PC: $%X\n", c.registers.pc)
+	fmt.Printf("Entrypoint: $%X\n", c.registers.pc)
 
 	for {
 		c.Cycle()
 	}
 }
 
-func (c *Cpu) PrintState(i *Instruction, operands []byte) {
+func PrintState(i *Instruction, operands []byte, registers *Registers, cycle uint64, debug *string) {
 	bytes := fmt.Sprintf("%02X ", i.Opcode)
 	for _, op := range operands {
 		bytes += fmt.Sprintf("%02X ", op)
 	}
 
-	absolute := ""
-	if i.Mode == Immediate {
-		absolute = "#"
-	}
-
-	hex := "$"
-	if i.Bytes < 2 {
-		hex = ""
-	}
-
-	operand := ""
-	if len(operands) > 1 {
-		operand = fmt.Sprintf("%02X%02X", operands[1], operands[0])
-	} else if len(operands) > 0 {
-		operand = fmt.Sprintf("%02X", operands[0])
-	}
-	instr := fmt.Sprintf("%s %s%s%s", i.Name, absolute, hex, operand)
-
-	fmt.Printf("%04X  %-9s %-30s  %s\n", c.registers.pc, bytes, instr, c)
+	fmt.Printf("%04X  %-9s %-30s  %s CYC:%d\n", registers.pc, bytes, *debug, registers, cycle)
 }
 
 func (c *Cpu) Cycle() {
@@ -93,12 +75,15 @@ func (c *Cpu) Cycle() {
 		operands[i] = *c.Memory.Map(c.registers.pc + uint16(i+1))
 	}
 
-	c.PrintState(&instruction, operands)
+	// Copy registers to print them after execution
+	registers := c.registers
 
-	incrPC, _, cycles := instruction.Execute(c, operands)
+	incrPC, _, cycles, debug := instruction.Execute(c, operands)
 	if incrPC {
 		c.registers.pc += uint16(instruction.Bytes)
 	}
+
+	PrintState(&instruction, operands, &registers, c.cycle, &debug)
 
 	c.cycle += uint64(cycles)
 }
