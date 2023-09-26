@@ -2,7 +2,7 @@ package core
 
 import "fmt"
 
-func (c *Cpu) Bcs(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bcs(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -19,10 +19,10 @@ func (c *Cpu) Bcs(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BCS $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BCS $%04X", targetAddress)
 }
 
-func (c *Cpu) Bcc(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bcc(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -39,10 +39,10 @@ func (c *Cpu) Bcc(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BCC $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BCC $%04X", targetAddress)
 }
 
-func (c *Cpu) Beq(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Beq(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -59,10 +59,10 @@ func (c *Cpu) Beq(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BEQ $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BEQ $%04X", targetAddress)
 }
 
-func (c *Cpu) Bne(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bne(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -79,10 +79,10 @@ func (c *Cpu) Bne(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BNE $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BNE $%04X", targetAddress)
 }
 
-func (c *Cpu) Bvs(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bvs(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -99,10 +99,10 @@ func (c *Cpu) Bvs(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BVS $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BVS $%04X", targetAddress)
 }
 
-func (c *Cpu) Bvc(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bvc(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -119,10 +119,10 @@ func (c *Cpu) Bvc(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BVC $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BVC $%04X", targetAddress)
 }
 
-func (c *Cpu) Bpl(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bpl(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -139,10 +139,10 @@ func (c *Cpu) Bpl(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BPL $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BPL $%04X", targetAddress)
 }
 
-func (c *Cpu) Bmi(address []byte) (incrPC bool, result byte, cycles byte, debug string) {
+func (c *Cpu) Bmi(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
 	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
@@ -159,5 +159,5 @@ func (c *Cpu) Bmi(address []byte) (incrPC bool, result byte, cycles byte, debug 
 		incrPC = false
 	}
 
-	return incrPC, 0, cycles, fmt.Sprintf("BMI $%04X", targetAddress)
+	return incrPC, cycles, fmt.Sprintf("BMI $%04X", targetAddress)
 }

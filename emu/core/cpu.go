@@ -78,7 +78,7 @@ func (c *Cpu) Cycle() {
 	// Copy registers to print them after execution
 	registers := c.registers
 
-	incrPC, _, cycles, debug := instruction.Execute(c, operands)
+	incrPC, cycles, debug := instruction.Execute(c, operands)
 	if incrPC {
 		c.registers.pc += uint16(instruction.Bytes)
 	}
