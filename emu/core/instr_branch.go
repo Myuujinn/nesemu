@@ -44,22 +44,24 @@ func (c *Cpu) Bcc(address []byte) (incrPC bool, cycles byte, debug string) {
 
 func (c *Cpu) Beq(address []byte) (incrPC bool, cycles byte, debug string) {
 	cycles = 2
-	incrPC = true
-	targetAddress := c.registers.pc + uint16(address[0]) + 2
+	targetAddress := c.registers.pc + uint16(address[0])
 
 	if c.IsFlagSet(FlagZero) {
 		// If the branch jumps to a new page, add an extra cycle
-		if c.registers.pc&0xFF00 != targetAddress&0xFF00 {
+		// We calculate after the branch, so we need to add 2 to the target address
+		if (c.registers.pc+2)&0xFF00 != targetAddress&0xFF00 {
 			cycles += 2
 		} else {
 			cycles++
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BEQ $%04X", targetAddress)
+	// This is just for the debug string
+	targetAddress += 2
+
+	return true, cycles, fmt.Sprintf("BEQ $%04X", targetAddress)
 }
 
 func (c *Cpu) Bne(address []byte) (incrPC bool, cycles byte, debug string) {

@@ -24,6 +24,27 @@ func (c *Cpu) Adc(value []byte) (incrPC bool, cycles byte, debug string) {
 	return true, 2, fmt.Sprintf("ADC #$%02X", value[0])
 }
 
+func (c *Cpu) IndexedIndirectAdc(address []byte) (incrPC bool, cycles byte, debug string) {
+	target := uint16(address[0]) + uint16(c.registers.x)
+	targetAddress := uint16(*c.Memory.Map(target % 0x100)) + uint16(*c.Memory.Map((target + 1) % 0x100))*0x100
+	toAdd := *c.Memory.Map(targetAddress)
+	overflow := int16(int8(c.registers.acc)) + int16(int8(toAdd))
+	if c.IsFlagSet(FlagCarry) {
+		overflow++
+		toAdd++
+	}
+
+	c.SetFlag(FlagOverflow, overflow > math.MaxInt8 || overflow < math.MinInt8)
+	c.SetFlag(FlagCarry, uint16(c.registers.acc)+uint16(toAdd) > 0xFF)
+
+	c.registers.acc += toAdd
+
+	c.SetFlag(FlagZero, c.registers.acc == 0)
+	c.SetFlag(FlagNegative, c.registers.acc&0b10000000 == 0b10000000)
+
+	return true, 6, fmt.Sprintf("ADC ($%02X,X) @ %02X = %04X = %02X", address[0], uint8(target), targetAddress, *c.Memory.Map(targetAddress))
+}
+
 func (c *Cpu) Sbc(value []byte) (incrPC bool, cycles byte, debug string) {
 	c.Adc([]byte{^value[0]})
 

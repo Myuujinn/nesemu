@@ -45,6 +45,12 @@ func (c *Cpu) PopStack() uint8 {
 	return *c.Memory.Map(StackStart + uint16(c.registers.sp))
 }
 
+func (c *Cpu) PrintStack() {
+	for i := StackStart; i < StackEnd; i++ {
+		fmt.Printf("%04X: %02X\n", i, *c.Memory.Map(i))
+	}
+}
+
 func (c *Cpu) Start() {
 	fmt.Printf("Entrypoint: $%X\n", c.registers.pc)
 
@@ -67,7 +73,7 @@ func (c *Cpu) Cycle() {
 
 	instruction, ok := instructionMap[opcode]
 	if !ok {
-		panic(fmt.Sprintf("Unknown opcode: %X", opcode))
+		panic(fmt.Sprintf("Unknown opcode: %02X", opcode))
 	}
 
 	operands := make([]byte, instruction.Bytes-1)

@@ -29,3 +29,8 @@ func (c *Cpu) Clv(_ []byte) (incrPC bool, cycles byte, debug string) {
 	c.SetFlag(FlagOverflow, false)
 	return true, 2, "CLV"
 }
+
+func (c *Cpu) Cli(_ []byte) (incrPC bool, cycles byte, debug string) {
+	c.SetFlag(FlagInterrupt, false)
+	return true, 2, "CLI"
+}
