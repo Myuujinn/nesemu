@@ -3,8 +3,6 @@ package core
 import "fmt"
 
 func (c *Cpu) Bcs(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if c.IsFlagSet(FlagCarry) {
@@ -16,15 +14,14 @@ func (c *Cpu) Bcs(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BCS $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BCS $%04X", targetAddress)
 }
 
 func (c *Cpu) Bcc(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if !c.IsFlagSet(FlagCarry) {
@@ -36,14 +33,14 @@ func (c *Cpu) Bcc(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BCC $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BCC $%04X", targetAddress)
 }
 
 func (c *Cpu) Beq(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
 	targetAddress := c.registers.pc + uint16(address[0])
 
 	if c.IsFlagSet(FlagZero) {
@@ -61,12 +58,10 @@ func (c *Cpu) Beq(address []byte) (incrPC bool, cycles byte, debug string) {
 	// This is just for the debug string
 	targetAddress += 2
 
-	return true, cycles, fmt.Sprintf("BEQ $%04X", targetAddress)
+	return true, cycles + 2, fmt.Sprintf("BEQ $%04X", targetAddress)
 }
 
 func (c *Cpu) Bne(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if !c.IsFlagSet(FlagZero) {
@@ -78,15 +73,14 @@ func (c *Cpu) Bne(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BNE $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BNE $%04X", targetAddress)
 }
 
 func (c *Cpu) Bvs(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if c.IsFlagSet(FlagOverflow) {
@@ -98,15 +92,14 @@ func (c *Cpu) Bvs(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BVS $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BVS $%04X", targetAddress)
 }
 
 func (c *Cpu) Bvc(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if !c.IsFlagSet(FlagOverflow) {
@@ -118,15 +111,14 @@ func (c *Cpu) Bvc(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BVC $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BVC $%04X", targetAddress)
 }
 
 func (c *Cpu) Bpl(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if !c.IsFlagSet(FlagNegative) {
@@ -138,15 +130,14 @@ func (c *Cpu) Bpl(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BPL $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BPL $%04X", targetAddress)
 }
 
 func (c *Cpu) Bmi(address []byte) (incrPC bool, cycles byte, debug string) {
-	cycles = 2
-	incrPC = true
 	targetAddress := c.registers.pc + uint16(address[0]) + 2
 
 	if c.IsFlagSet(FlagNegative) {
@@ -158,8 +149,9 @@ func (c *Cpu) Bmi(address []byte) (incrPC bool, cycles byte, debug string) {
 		}
 
 		c.registers.pc = targetAddress
-		incrPC = false
+	} else {
+		incrPC = true
 	}
 
-	return incrPC, cycles, fmt.Sprintf("BMI $%04X", targetAddress)
+	return incrPC, cycles + 2, fmt.Sprintf("BMI $%04X", targetAddress)
 }

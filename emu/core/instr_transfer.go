@@ -20,13 +20,40 @@ func (c *Cpu) AbsoluteLdx(address []byte) (incrPC bool, cycles byte, debug strin
 	return true, 4, fmt.Sprintf("LDX $%02X%02X = %02X", address[1], address[0], c.registers.x)
 }
 
-func (c *Cpu) Ldy(value []byte) (incrPC bool, cycles byte, debug string) {
+func (c *Cpu) ZeropageLdx(address []byte) (incrPC bool, cycles byte, debug string) {
+	c.registers.x = *c.Memory.Map(uint16(address[0]))
+
+	c.SetFlag(FlagZero, c.registers.x == 0)
+	c.SetFlag(FlagNegative, c.registers.x&0b10000000 == 0b10000000)
+
+	return true, 3, fmt.Sprintf("LDX $%02X = %02X", address[0], c.registers.x)
+}
+
+func (c *Cpu) ImmediateLdy(value []byte) (incrPC bool, cycles byte, debug string) {
 	c.registers.y = value[0]
 
 	c.SetFlag(FlagZero, c.registers.y == 0)
 	c.SetFlag(FlagNegative, c.registers.y&0b10000000 == 0b10000000)
 
 	return true, 2, fmt.Sprintf("LDY #$%02X", value[0])
+}
+
+func (c *Cpu) ZeropageLdy(address []byte) (incrPC bool, cycles byte, debug string) {
+	c.registers.y = *c.Memory.Map(uint16(address[0]))
+
+	c.SetFlag(FlagZero, c.registers.y == 0)
+	c.SetFlag(FlagNegative, c.registers.y&0b10000000 == 0b10000000)
+
+	return true, 3, fmt.Sprintf("LDY $%02X = %02X", address[0], c.registers.y)
+}
+
+func (c *Cpu) AbsoluteLdy(address []byte) (incrPC bool, cycles byte, debug string) {
+	c.registers.y = *c.Memory.Map(uint16(address[0]) | uint16(address[1])<<8)
+
+	c.SetFlag(FlagZero, c.registers.y == 0)
+	c.SetFlag(FlagNegative, c.registers.y&0b10000000 == 0b10000000)
+
+	return true, 4, fmt.Sprintf("LDY $%02X%02X = %02X", address[1], address[0], c.registers.y)
 }
 
 func (c *Cpu) ImmediateLda(value []byte) (incrPC bool, cycles byte, debug string) {
@@ -67,9 +94,27 @@ func (c *Cpu) IndexedIndirectLda(address []byte) (incrPC bool, cycles byte, debu
 	return true, 6, fmt.Sprintf("LDA ($%02X,X) @ %02X = %04X = %02X", address[0], uint8(target), targetAddress, c.registers.acc)
 }
 
+func (c *Cpu) IndirectIndexedLda(address []byte) (incrPC bool, cycles byte, debug string) {
+	target := uint16(address[0])
+	targetAddress := uint16(*c.Memory.Map(target)) + uint16(*c.Memory.Map((target + 1) % 0x100))*0x100
+
+	if targetAddress&0xFF00 != (targetAddress+uint16(c.registers.y))&0xFF00 {
+		cycles++
+	}
+
+	c.registers.acc = *c.Memory.Map(targetAddress + uint16(c.registers.y))
+
+	c.SetFlag(FlagZero, c.registers.acc == 0)
+	c.SetFlag(FlagNegative, c.registers.acc&0b10000000 == 0b10000000)
+
+	return true, cycles + 5, fmt.Sprintf("LDA ($%02X),Y = %04X @ %04X = %02X", address[0], targetAddress, targetAddress+uint16(c.registers.y), c.registers.acc)
+}
+
 func (c *Cpu) ZeropageStx(address []byte) (incrPC bool, cycles byte, debug string) {
-	*c.Memory.Map(uint16(address[0])) = c.registers.x
-	return true, 3, fmt.Sprintf("STX $%02X = %02X", address[0], c.registers.x)
+	value := c.Memory.Map(uint16(address[0]))
+	debug = fmt.Sprintf("STX $%02X = %02X", address[0], *value)
+	*value = c.registers.x
+	return true, 3, debug
 }
 
 func (c *Cpu) AbsoluteStx(address []byte) (incrPC bool, cycles byte, debug string) {
@@ -80,8 +125,17 @@ func (c *Cpu) AbsoluteStx(address []byte) (incrPC bool, cycles byte, debug strin
 }
 
 func (c *Cpu) Sty(address []byte) (incrPC bool, cycles byte, debug string) {
-	*c.Memory.Map(uint16(address[0])) = c.registers.y
-	return true, 3, fmt.Sprintf("STY $%02X = %02X", address[0], c.registers.y)
+	value := c.Memory.Map(uint16(address[0]))
+	debug = fmt.Sprintf("STY $%02X = %02X", address[0], *value)
+	*value = c.registers.y
+	return true, 3, debug
+}
+
+func (c *Cpu) AbsoluteSty(address []byte) (incrPC bool, cycles byte, debug string) {
+	value := c.Memory.Map(uint16(address[0]) | uint16(address[1])<<8)
+	debug = fmt.Sprintf("STY $%02X%02X = %02X", address[1], address[0], *value)
+	*value = c.registers.y
+	return true, 4, debug
 }
 
 func (c *Cpu) ZeropageSta(address []byte) (incrPC bool, cycles byte, debug string) {
